@@ -1,4 +1,4 @@
-set guifont=Menlo\ for\ Powerline:h18
+set guifont=Fira\ Code:h18
 
 filetype plugin indent on
 filetype on
@@ -14,12 +14,12 @@ call plug#begin('~/.vim/plugged')
 
 " UI
 Plug 'nathanaelkane/vim-indent-guides'
-Plug 'flazz/vim-colorschemes'
 Plug 'arcticicestudio/nord-vim'
 
 " Addons
 Plug 'majutsushi/tagbar'
-Plug 'kien/ctrlp.vim'
+Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --all'  }
+Plug 'junegunn/fzf.vim'
 Plug 'chiel92/vim-autoformat'
 Plug 'editorconfig/editorconfig-vim'
 Plug 'ddrscott/vim-side-search'
@@ -29,22 +29,24 @@ Plug 'EvanDotPro/nerdtree-symlink'
 Plug 'ervandew/supertab'    " Easier completion with tab
 Plug 'scrooloose/syntastic' " Bunch of syntax checkers
 Plug 'mkitt/tabline.vim'    " Enhances tab labels
-Plug 'tpope/vim-commentary' " Commenting
+Plug 'scrooloose/nerdcommenter' " Commenting
 Plug 'vim-airline/vim-airline'
 Plug 'vim-airline/vim-airline-themes'
 Plug 'tpope/vim-surround'   " Adds surrounds actions
 Plug 'bronson/vim-trailing-whitespace' " Highlights trailing whitespace in red and provides
 Plug 'AndrewRadev/splitjoin.vim'
-Plug 'Valloric/YouCompleteMe'
+"Plug 'Shougo/neocomplete.vim'
+Plug 'Shougo/deoplete.nvim'
+Plug 'carlitux/deoplete-ternjs', { 'do': 'npm install -g tern' }
 Plug 'terryma/vim-multiple-cursors'
 Plug 'vim-scripts/BufOnly.vim'
 Plug 'ternjs/tern_for_vim', {'do': 'cd ~/.vim/plugged/tern_for_vim && npm i'}
 
 " Git
 Plug 'tpope/vim-fugitive'   " Git utils
+Plug 'tpope/vim-rhubarb'
 Plug 'airblade/vim-gitgutter' " Shows a git diff in the gutter
-Plug 'imkmf/ctrlp-branches'
-Plug 'airblade/vim-gitgutter'
+Plug 'tpope/vim-unimpaired'
 
 
 " Snipmate stuff
@@ -55,14 +57,16 @@ Plug 'honza/vim-snippets' " Snippets for snipmate
 
 " Syntax
 Plug 'ekalinin/Dockerfile.vim'
-Plug 'evanmiller/nginx-vim-syntax'
 Plug 'cakebaker/scss-syntax.vim'
 Plug 'tpope/vim-haml'
-Plug 'digitaltoad/vim-jade'
 Plug 'slim-template/vim-slim'
 Plug 'hail2u/vim-css3-syntax'
 Plug 'ap/vim-css-color'
 Plug 'elixir-lang/vim-elixir'
+Plug 'slashmili/alchemist.vim'
+
+" Postgres
+Plug 'vim-scripts/dbext.vim'
 
 " Ruby
 Plug 'vim-ruby/vim-ruby'
@@ -73,7 +77,6 @@ Plug 'tpope/vim-endwise'
 
 " JavaScript
 Plug 'leafgarland/typescript-vim'
-Plug 'kchmck/vim-coffee-script'
 Plug 'pangloss/vim-javascript'
 Plug 'mxw/vim-jsx'
 Plug 'othree/yajs'
@@ -93,7 +96,7 @@ set ttyfast " Optimize for fast terminal connections
 set encoding=utf-8 nobomb " Use UTF-8 without BOM
 set list " trailing whitespace can be seen
 set mouse=a " Enable mouse in all modes
-"set clipboard=unnamed " Use the OS clipboard by default (on versions compiled with `+clipboard`)
+set clipboard=unnamed " Use the OS clipboard by default (on versions compiled with `+clipboard`)
 set autoread " Reload files changed outside vim (but doesn't check periodically!)
 set shortmess=a " Short the status message
 " Ignore this paths
@@ -122,7 +125,9 @@ set nostartofline " Don’t reset cursor to start of line when moving around.
 set shortmess=atI " Don’t show the intro message when starting Vim
 set lcs=tab:▸\ ,trail:·,nbsp:_ " Show “invisible” characters
 set noerrorbells " Disable error bells
+
 if exists('$TMUX')
+  set ttymouse=xterm2
   let &t_SI = "\<Esc>Ptmux;\<Esc>\<Esc>]50;CursorShape=1\x7\<Esc>\\"
   let &t_EI = "\<Esc>Ptmux;\<Esc>\<Esc>]50;CursorShape=0\x7\<Esc>\\"
 else
@@ -169,17 +174,24 @@ if exists("&undodir")
 endif
 set backupskip=/tmp/*,/private/tmp/* " Don’t create for certain directories
 
+
+let g:rspec_command = 'call Send_to_Tmux("be rspec --format progress {spec}\n")'
+ map <Leader>t :call RunCurrentSpecFile()<CR>
+ map <Leader>s :call RunNearestSpec()<CR>
+ map <Leader>l :call RunLastSpec()<CR>
+ map <Leader>a :call RunAllSpecs()<CR>
+
 nnoremap <Leader>ss :SideSearch <C-r><C-w><CR> | wincmd p
 
 " CTRL-P
-let g:ctrlp_user_command = 'ag %s -l --nocolor -g ""'
+"let g:ctrlp_user_command = 'ag %s -l --nocolor -g ""'
 " let g:ctrlp_working_path_mode = 'ar'
-nmap <Leader>bb :CtrlPBuffer<cr>
-nmap <leader>bm :CtrlPMixed<cr>
-nmap <leader>bs :CtrlPMRU<cr>
-" CUSTOM FILES
-au BufRead,BufNewFile *.eco setfiletype html
-au BufRead,BufNewFile *.hamlc setfiletype haml
+"nmap <Leader>bb :CtrlPBuffer<cr>
+"nmap <leader>bm :CtrlPMixed<cr>
+"nmap <leader>bs :CtrlPMRU<cr>
+"" CUSTOM FILES
+"au BufRead,BufNewFile *.eco setfiletype html
+"au BufRead,BufNewFile *.hamlc setfiletype haml
 
 " Faster exit to normal mode
 set timeoutlen=1000 ttimeoutlen=0
@@ -201,15 +213,13 @@ let NERDTreeMapOpenInTab='†'
 map <Leader>n :NERDTreeToggle<CR>
 
 " Figitive
-set diffopt+=vertical
 
 " Syntastic
-let g:syntastic_always_populate_loc_list = 1
-let g:syntastic_check_on_open = 1
-let g:syntastic_check_on_wq = 0
+"
+"
+
 " let g:syntastic_ruby_checkers = ['rubocop', 'mri']
 " Toggle Syntastic mode
-nnoremap <Leader>i :SyntasticToggleMode<CR>'
 
 " ###
 " CUSTOM MAPPINGS
@@ -224,15 +234,6 @@ function! StripWhitespace()
   call setreg('/', old_query)
 endfunction
 
-
-" let g:rspec_runner = "os_x_iterm2"
-let g:rspec_command = 'call Send_to_Tmux("spring rspec {spec}\n")'
-map <Leader>t :call RunCurrentSpecFile()<CR>
-map <Leader>s :call RunNearestSpec()<CR>
-map <Leader>l :call RunLastSpec()<CR>
-map <Leader>a :call RunAllSpecs()<CR>
-
-" Git blame on <leader>a
 nnoremap <Leader>b :Gblame<cr>
 
 " Fold on space
@@ -260,10 +261,17 @@ map <Leader>s :split<CR>
 
 
 set hidden
-nnoremap ‘ :bnext<CR>
-nnoremap “ :bprev<CR>
-nnoremap <C-t> :CommandT<CR>
-map <Leader>l :Autoformat<CR>
+
+nnoremap <C-J> :bnext<CR>
+nnoremap <C-K> :bprev<CR>
+nnoremap <C-D> :bd<CR>
+
+map <C-a> :Autoformat<CR>
+map <C-B> :Buffers<CR>
+map <C-f> :Files<CR>
 
 " Git shortcuts
-nmap <Leader>G :CtrlPBranches<CR>
+
+"Dbnext config
+let g:dbext_default_profile = 'psql'
+let g:deoplete#enable_at_startup = 1
